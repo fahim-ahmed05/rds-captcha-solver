@@ -1,7 +1,8 @@
 // ==UserScript==
 // @name         RDS CAPTCHA Solver
 // @namespace    Violentmonkey Scripts
-// @version      1.1
+// @homepage     https://github.com/fahim-ahmed05/rds-captcha-solver
+// @version      1.2
 // @description  Auto-recognize and fill CAPTCHA on NSU Portal login page.
 // @author       Fahim Ahmed
 // @match        https://rds3.northsouth.edu/common/login/preLogin
