@@ -35,10 +35,10 @@
             Tesseract.recognize(dataURL, 'eng', {
                 logger: m => console.log(m)
             }).then(({ data: { text } }) => {
-                const digits = text.replace(/\D/g, ''); // Extract only digits
+                const digits = text.trim().replace(/\D/g, ''); // Extract only digits
                 console.log("Recognized CAPTCHA:", digits);
 
-                if (digits.length !== 4 && retries < maxRetries) {
+                if ((digits.length !== 4 || !/^\d{4}$/.test(digits)) && retries < maxRetries) {
                     console.warn(`CAPTCHA length (${digits.length}) invalid, retrying...`);
                     setTimeout(() => fetchAndRecognizeCaptcha(retries + 1), 500); // retry after short delay
                     return;
