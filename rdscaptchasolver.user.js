@@ -2,7 +2,7 @@
 // @name         RDS CAPTCHA Solver
 // @namespace    Violentmonkey Scripts
 // @homepage     https://github.com/fahim-ahmed05/rds-captcha-solver
-// @version      1.4
+// @version      1.5
 // @description  Auto-recognize and fill CAPTCHA on NSU Portal login page.
 // @author       Fahim Ahmed
 // @match        https://rds3.northsouth.edu/common/login/preLogin
@@ -44,7 +44,7 @@
             return;
         }
 
-        showOverlay(`Solving CAPTCHA... Attempt ${retries + 1} of ${maxRetries}`);
+        showOverlay(`Solving CAPTCHA... (${retries + 1}/${maxRetries})`);
 
         const img = new Image();
         img.crossOrigin = "Anonymous";
@@ -69,14 +69,14 @@
 
                 const input = document.querySelector('input[name="captcha"]');
                 if (input) input.value = digits;
-                showOverlay(`CAPTCHA Solved: ${digits}`);
+                showOverlay(`CAPTCHA Solved.`);
             }).catch(() => {
-                showOverlay('OCR processing failed. Please refresh.', true);
+                showOverlay('OCR processing failed. Please refresh the tab.', true);
             });
         };
 
         img.onerror = () => {
-            showOverlay('Failed to load CAPTCHA image.', true);
+            showOverlay('Failed to load CAPTCHA image. Please refresh the tab.', true);
         };
     }
 
