@@ -2,7 +2,7 @@
 // @name         RDS CAPTCHA Solver
 // @namespace    Violentmonkey Scripts
 // @homepage     https://github.com/fahim-ahmed05/rds-captcha-solver
-// @version      1.3
+// @version      1.4
 // @description  Auto-recognize and fill CAPTCHA on NSU Portal login page.
 // @author       Fahim Ahmed
 // @match        https://rds3.northsouth.edu/common/login/preLogin
@@ -18,7 +18,34 @@
     const imageURL = 'https://rds3.northsouth.edu/captcha';
     const maxRetries = 5;
 
+    function showOverlay(message, isError = false) {
+        let overlay = document.getElementById('captcha-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'captcha-overlay';
+            overlay.style.position = 'fixed';
+            overlay.style.top = '20px';
+            overlay.style.right = '20px';
+            overlay.style.zIndex = '9999';
+            overlay.style.padding = '10px 15px';
+            overlay.style.borderRadius = '8px';
+            overlay.style.boxShadow = '0 0 10px rgba(0,0,0,0.3)';
+            overlay.style.fontSize = '14px';
+            overlay.style.fontFamily = 'Arial, sans-serif';
+            document.body.appendChild(overlay);
+        }
+        overlay.style.backgroundColor = isError ? '#d32f2f' : '#4CAF50';
+        overlay.textContent = message;
+    }
+
     function fetchAndRecognizeCaptcha(retries = 0) {
+        if (retries >= maxRetries) {
+            showOverlay(`Failed after ${maxRetries} attempt(s). Please refresh the tab.`, true);
+            return;
+        }
+
+        showOverlay(`Solving CAPTCHA... Attempt ${retries + 1} of ${maxRetries}`);
+
         const img = new Image();
         img.crossOrigin = "Anonymous";
         img.src = imageURL + '?rand=' + Math.random(); // Cache-busting
@@ -32,27 +59,24 @@
 
             const dataURL = canvas.toDataURL();
 
-            Tesseract.recognize(dataURL, 'eng', {
-                logger: m => console.log(m)
-            }).then(({ data: { text } }) => {
-                const digits = text.trim().replace(/\D/g, ''); // Extract only digits
-                console.log("Recognized CAPTCHA:", digits);
+            Tesseract.recognize(dataURL, 'eng').then(({ data: { text } }) => {
+                const digits = text.trim().replace(/\D/g, '');
 
-                if ((digits.length !== 4 || !/^\d{4}$/.test(digits)) && retries < maxRetries) {
-                    console.warn(`CAPTCHA length (${digits.length}) invalid, retrying...`);
-                    setTimeout(() => fetchAndRecognizeCaptcha(retries + 1), 500); // retry after short delay
+                if (!/^\d{4}$/.test(digits)) {
+                    setTimeout(() => fetchAndRecognizeCaptcha(retries + 1), 500);
                     return;
                 }
 
                 const input = document.querySelector('input[name="captcha"]');
                 if (input) input.value = digits;
-            }).catch(err => {
-                console.error('OCR Error:', err);
+                showOverlay(`CAPTCHA Solved: ${digits}`);
+            }).catch(() => {
+                showOverlay('OCR processing failed. Please refresh.', true);
             });
         };
 
         img.onerror = () => {
-            console.error("Failed to load CAPTCHA image.");
+            showOverlay('Failed to load CAPTCHA image.', true);
         };
     }
 
