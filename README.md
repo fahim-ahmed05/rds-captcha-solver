@@ -7,5 +7,6 @@ A Tampermonkey userscript that automatically fills the CAPTCHA on the NSU Portal
 3. Visit the NSU Portal login page to see it in action.
 
 ## Note
-The script may occasionally fail to recognize numbers correctly due to the nature of OCR. If recognition fails, refresh the page.
+- The CAPTCHA numbers and the inputed numbers will not be the same, but it will still work.
+- The script may occasionally fail to recognize numbers correctly due to the nature of OCR. If recognition fails, refresh the page.
 
