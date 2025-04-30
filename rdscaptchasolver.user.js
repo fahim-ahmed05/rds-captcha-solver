@@ -2,7 +2,7 @@
 // @name         RDS CAPTCHA Solver
 // @namespace    Violentmonkey Scripts
 // @homepage     https://github.com/fahim-ahmed05/rds-captcha-solver
-// @version      1.6
+// @version      1.9
 // @description  Auto-recognize and fill CAPTCHA on NSU Portal login page.
 // @author       Fahim Ahmed
 // @match        https://rds3.northsouth.edu/common/login/preLogin
@@ -19,24 +19,29 @@
     const maxRetries = 5;
 
     function showOverlay(message, isError = false) {
-        let overlay = document.getElementById('captcha-overlay');
-        if (!overlay) {
-            overlay = document.createElement('div');
-            overlay.id = 'captcha-overlay';
-            overlay.style.position = 'fixed';
-            overlay.style.top = '20px';
-            overlay.style.right = '20px';
-            overlay.style.zIndex = '9999';
-            overlay.style.padding = '10px 15px';
-            overlay.style.borderRadius = '8px';
-            overlay.style.boxShadow = '0 0 10px rgba(0,0,0,0.3)';
-            overlay.style.fontSize = '14px';
-            overlay.style.color = '#fff';
-            overlay.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
-            document.body.appendChild(overlay);
-        }
+        const oldOverlay = document.getElementById('captcha-overlay');
+        if (oldOverlay && oldOverlay.parentNode) oldOverlay.remove();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'captcha-overlay';
+        overlay.style.position = 'fixed';
+        overlay.style.top = '20px';
+        overlay.style.right = '20px';
+        overlay.style.zIndex = '9999';
+        overlay.style.padding = '10px 15px';
+        overlay.style.borderRadius = '8px';
+        overlay.style.boxShadow = '0 0 10px rgba(0,0,0,0.3)';
+        overlay.style.fontSize = '14px';
+        overlay.style.color = '#fff';
+        overlay.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
         overlay.style.backgroundColor = isError ? '#d32f2f' : '#4CAF50';
         overlay.textContent = message;
+
+        document.body.appendChild(overlay);
+
+        setTimeout(() => {
+            if (overlay && overlay.parentNode) overlay.remove();
+        }, 30000);
     }
 
     function fetchAndRecognizeCaptcha(retries = 0) {
@@ -49,7 +54,7 @@
 
         const img = new Image();
         img.crossOrigin = "Anonymous";
-        img.src = imageURL + '?rand=' + Math.random();
+        img.src = imageURL + '?rand=' + Math.random(); // prevent caching
 
         img.onload = () => {
             const canvas = document.createElement('canvas');
@@ -70,14 +75,23 @@
 
                 const input = document.querySelector('input[name="captcha"]');
                 if (input) input.value = digits;
+
                 showOverlay(`CAPTCHA Solved.`);
             }).catch(() => {
-                showOverlay('OCR processing failed. Please refresh the tab.', true);
+                if (retries + 1 < maxRetries) {
+                    setTimeout(() => fetchAndRecognizeCaptcha(retries + 1), 500);
+                } else {
+                    showOverlay('OCR processing failed. Please refresh the tab.', true);
+                }
             });
         };
 
         img.onerror = () => {
-            showOverlay('Failed to load CAPTCHA image. Please refresh the tab.', true);
+            if (retries + 1 < maxRetries) {
+                setTimeout(() => fetchAndRecognizeCaptcha(retries + 1), 500);
+            } else {
+                showOverlay('Failed to load CAPTCHA image. Please refresh the tab.', true);
+            }
         };
     }
 
