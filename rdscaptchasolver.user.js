@@ -2,7 +2,7 @@
 // @name         RDS CAPTCHA Solver
 // @namespace    Violentmonkey Scripts
 // @homepage     https://github.com/fahim-ahmed05/rds-captcha-solver
-// @version      2.0
+// @version      2.1
 // @description  Auto-recognize and fill CAPTCHA on NSU Portal login page.
 // @author       Fahim Ahmed
 // @match        https://rds3.northsouth.edu/common/login/preLogin
@@ -41,7 +41,7 @@
 
         setTimeout(() => {
             if (overlay && overlay.parentNode) overlay.remove();
-        }, 10000);
+        }, 30000);
     }
 
     function fetchAndRecognizeCaptcha(retries = 0) {
