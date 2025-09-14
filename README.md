@@ -15,7 +15,7 @@ A Tampermonkey userscript that automatically fills the CAPTCHA on the NSU Portal
 
 ## Donate
 
-Open-source is powered by coffee and curiosity—thanks for your support!
+Open-source is powered by coffee and curiosity. Thanks for your support!
 
 <a href="https://www.buymeacoffee.com/fahim.ahmed" target="_blank">
   <img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" 
